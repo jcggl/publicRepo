@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>STT Test</title>
+</head>
+<body>
+    <h1>음성을 텍스트로 변환하기</h1>
+    <button id="start-btn">시작</button>
+    <button id="stop-btn">중지</button>
+    <p id="text"></p>
+
+    <script>
+        // Check for browser support
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (typeof SpeechRecognition === "undefined") {
+            alert("죄송합니다, 귀하의 브라우저는 음성 인식을 지원하지 않습니다.");
+        } else {
+            // Initialize speech recognition
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true; // Keep listening even after voice stops
+            recognition.interimResults = true; // Show results as they are recognized
+            recognition.lang = "ko-KR"; // 한국어 설정
+
+            // DOM elements
+            const startBtn = document.getElementById("start-btn");
+            const stopBtn = document.getElementById("stop-btn");
+            const textElement = document.getElementById("text");
+
+            // Start recognition
+            startBtn.onclick = () => {
+                recognition.start();
+            };
+
+            // Stop recognition
+            stopBtn.onclick = () => {
+                recognition.stop();
+            };
+
+            // Append the recognized text
+            recognition.onresult = (event) => {
+                let final_transcript = ''; // 최종 텍스트를 저장할 변수
+                let interim_transcript = ''; // 중간 결과를 저장할 변수
+
+                // 이벤트 결과를 반복하여 처리
+                 for (let i = event.resultIndex; i < event.results.length; ++i) {
+                     if (event.results[i].isFinal) {
+                        final_transcript += event.results[i][0].transcript + '. '; // 최종 결과에 문장 기호 추가
+                    } else {
+                        interim_transcript += event.results[i][0].transcript;
+                    }
+                }
+
+                // 화면에 텍스트 표시
+                 textElement.textContent = final_transcript + interim_transcript; // 최종 텍스트와 중간 결과 모두를 화면에 표시
+            };
+
+
+            // Handle errors
+            recognition.onerror = (event) => {
+                console.error("Recognition error: " + event.error);
+            };
+        }
+    </script>
+</body>
+</html>
